@@ -9,27 +9,28 @@ from tqdm import tqdm
 
 model = YOLO("best_model_checkpoint_Feb25.pt")
 if not os.path.exists("output"):
-   os.makedirs("output")
+    os.makedirs("output")
+
 
 def create_output_folders(image_name):
     if not os.path.exists("output/" + image_name):
-        os.makedirs(image_name)
+        os.makedirs("output/" + image_name)
 
-    if not os.path.exists("output/" + image_name + "/Good"):
-        os.makedirs("output/" + image_name + "/Good")
+    # create folders for each class Dense, Good, Sparse
+    for class_name in model.names:
+        if not os.path.exists("output/" + image_name + "/" + class_name):
+            os.makedirs("output/" + image_name + "/" + class_name)
 
-    if not os.path.exists("output/" + image_name + "/Dense"):
-        os.makedirs("output/" + image_name + "/Dense")
 
-    if not os.path.exists("output/" + image_name + "/Sparse"):
-        os.makedirs("output/" + image_name + "/Sparse")
-
-def save_to_folder(results, cropped_image_name, image_name):
+def save_to_folder(results, cropped_image, cropped_image_name):
     parsed_results = list([float(x) for x in results[0].probs])
     max_index = np.argmax(parsed_results)
     class_name = model.names[max_index]
     # save image to folder
-    cropped_image_name.save("output/"+ image_name + "/"+class_name+"/" + cropped_image_name)
+    save_path = os.path.join("output", image_name,
+                             class_name, cropped_image_name)
+    cropped_image.save(save_path, "JPEG", quality=100)
+
 
 if __name__ == "__main__":
     for filename in os.listdir("data"):
@@ -49,9 +50,10 @@ if __name__ == "__main__":
             for c in tqdm(range(0, w, 512)):
                 for r in tqdm(range(0, h, 512), leave=False):
                     cropped_image = image.crop((c, r, c + 512, r + 512))
-                    cropped_image_name = image_name + "_cropped_" + str(c) + "_" + str(r) + ".jpg"
-                    grayscaled_image = ImageOps.grayscale(cropped_image)
-                    
+                    cropped_image_name = image_name + \
+                        "_cropped_" + str(c) + "_" + str(r) + ".jpg"
+                    # grayscaled_image = ImageOps.grayscale(cropped_image)
+
                     # run prediction on image
-                    results = model(grayscaled_image)
+                    results = model(cropped_image)
                     save_to_folder(results, cropped_image, cropped_image_name)
