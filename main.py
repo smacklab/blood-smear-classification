@@ -1,10 +1,8 @@
 import os
-import ultralytics
 from ultralytics import YOLO
-import numpy
 import numpy as np
 import tifffile
-from PIL import Image, ImageOps
+from PIL import Image
 from tqdm import tqdm
 
 model = YOLO("best_model_checkpoint_Feb25.pt")
@@ -52,7 +50,6 @@ if __name__ == "__main__":
                     cropped_image = image.crop((c, r, c + 512, r + 512))
                     cropped_image_name = image_name + \
                         "_cropped_" + str(c) + "_" + str(r) + ".jpg"
-                    # grayscaled_image = ImageOps.grayscale(cropped_image)
 
                     # run prediction on image
                     results = model(cropped_image)
