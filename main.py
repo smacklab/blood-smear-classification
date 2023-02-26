@@ -17,7 +17,7 @@ def create_output_folders(image_name):
         os.makedirs("output/" + image_name)
 
     # create folders for each class Dense, Good, Sparse
-    for class_name in model.names:
+    for class_name in model.names.values():
         if not os.path.exists("output/" + image_name + "/" + class_name):
             os.makedirs("output/" + image_name + "/" + class_name)
 
