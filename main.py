@@ -5,7 +5,7 @@ import tifffile
 from PIL import Image
 from tqdm import tqdm
 
-model = YOLO("best_model_checkpoint_Feb25.pt")
+model = YOLO("blood_smear_model_Apr10.pt")
 if not os.path.exists("output"):
     os.makedirs("output")
 
@@ -24,10 +24,12 @@ def save_to_folder(results, cropped_image, cropped_image_name):
     parsed_results = list([float(x) for x in results[0].probs])
     max_index = np.argmax(parsed_results)
     class_name = model.names[max_index]
+    if parsed_results[2] < .99 and max_index == 1:
+        save_path = os.path.join("output", image_name,
+                                 class_name, cropped_image_name)
+        cropped_image.save(save_path, "JPEG", quality=100)
     # save image to folder
-    save_path = os.path.join("output", image_name,
-                             class_name, cropped_image_name)
-    cropped_image.save(save_path, "JPEG", quality=100)
+
 
 
 if __name__ == "__main__":
